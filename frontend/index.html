@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SplitRecord — Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: linear-gradient(135deg, #e8f5e9 0%, #f5f4f0 60%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 24px;
+    }
+    .auth-card {
+      background: #fff;
+      border: 1px solid #e2e0d8;
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.08);
+    }
+    .brand { text-align: center; margin-bottom: 28px; }
+    .brand-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 48px; height: 48px; background: #2d6a4f; color: #fff;
+      font-size: 24px; font-family: 'DM Serif Display', serif;
+      border-radius: 12px; margin-bottom: 10px;
+    }
+    .brand h1 { font-family: 'DM Serif Display', serif; font-size: 26px; font-weight: 400; margin: 0; }
+    .brand p { color: #6b6b64; font-size: 14px; margin-top: 4px; }
+
+    /* ── Tabs ── */
+    .tabs { display: flex; background: #f5f4f0; border-radius: 8px; padding: 4px; margin-bottom: 24px; gap: 4px; }
+    .tab { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; color: #6b6b64; transition: all .15s; font-family: inherit; }
+    .tab.active { background: #fff; color: #1a1a17; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+
+    /* ── Form ── */
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 500; color: #6b6b64; margin-bottom: 6px; }
+
+    /* input wrapper for show/hide button */
+    .input-wrap { position: relative; display: flex; align-items: center; }
+    .input-wrap input { padding-right: 42px !important; }
+    .toggle-pw {
+      position: absolute; right: 10px;
+      background: none; border: none; cursor: pointer;
+      font-size: 15px; padding: 0; line-height: 1;
+      opacity: 0.5; transition: opacity .15s; color: #1a1a17;
+    }
+    .toggle-pw:hover { opacity: 1; }
+
+    .form-group input {
+      display: block; width: 100%; max-width: 100%; box-sizing: border-box;
+      padding: 10px 14px; border: 1.5px solid #e2e0d8; border-radius: 10px;
+      font-size: 15px; background: #fff; color: #1a1a17;
+      outline: none; transition: border-color .15s, box-shadow .15s;
+      font-family: inherit;
+    }
+    .form-group input:focus { border-color: #2d6a4f; box-shadow: 0 0 0 3px rgba(45,106,79,.08); }
+    .form-group input::placeholder { color: #bbb; }
+    .form-group input.input-ok    { border-color: #22c55e; }
+    .form-group input.input-error { border-color: #c0392b; }
+
+    /* ── Field errors ── */
+    .field-error { display: block; font-size: 12px; color: #c0392b; margin-top: 5px; min-height: 16px; }
+
+    /* ── Rule checklist ── */
+    .rule-list { list-style: none; margin-top: 8px; display: flex; flex-direction: column; gap: 3px; padding: 0; }
+    .rule { font-size: 12px; color: #9ca3af; padding-left: 18px; position: relative; transition: color .2s; }
+    .rule::before { content: '○'; position: absolute; left: 0; color: #9ca3af; }
+    .rule.rule-pass { color: #16a34a; }
+    .rule.rule-pass::before { content: '✓'; color: #16a34a; }
+    .rule.rule-fail { color: #c0392b; }
+    .rule.rule-fail::before { content: '✕'; color: #c0392b; }
+
+    /* ── Password strength ── */
+    .pw-strength-wrap { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+    .pw-strength-bar { flex: 1; height: 5px; background: #e5e7eb; border-radius: 99px; overflow: hidden; }
+    .pw-strength-fill { height: 100%; width: 0%; border-radius: 99px; transition: width .3s ease, background .3s ease; }
+    .pw-strength-label { font-size: 11px; font-weight: 600; min-width: 64px; text-align: right; }
+
+    /* ── Global error banner ── */
+    .error-msg { color: #c0392b; font-size: 13px; margin-bottom: 8px; display: none; }
+
+    /* ── Button ── */
+    .btn-primary {
+      width: 100%; padding: 12px; background: #2d6a4f; color: #fff;
+      border: none; border-radius: 10px; font-size: 15px; font-weight: 600;
+      cursor: pointer; transition: background .15s; font-family: inherit;
+    }
+    .btn-primary:hover { background: #1b4332; }
+
+    /* hint */
+    .hint { font-size: 12px; color: #6b6b64; margin-top: 5px; }
+  </style>
+</head>
+<body>
+
+  <div id="flash-banner" class="success-banner"></div>
+  <div class="auth-card">
+    <div class="brand">
+      <span class="brand-icon">÷</span>
+      <h1>Expense Record</h1>
+      <p>Split expenses recorder.</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="showTab(event, 'login')">Login</button>
+      <button class="tab"        onclick="showTab(event, 'signup')">Sign Up</button>
+    </div>
+
+    <!-- ── LOGIN FORM ── -->
+    <div id="login-form">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="you@example.com"
+               onkeydown="if(event.key==='Enter') login()"/>
+        <span class="field-error" id="err-login-email"></span>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-wrap">
+          <input type="password" id="login-pass" placeholder="••••••••"
+                 onkeydown="if(event.key==='Enter') login()"/>
+          <button class="toggle-pw" type="button" onclick="togglePw('login-pass', this)">👁</button>
+        </div>
+        <span class="field-error" id="err-login-pass"></span>
+      </div>
+      <div id="login-error" class="error-msg"></div>
+      <button class="btn-primary" onclick="login()">Login →</button>
+    </div>
+
+    <!-- ── SIGNUP FORM ── -->
+    <div id="signup-form" style="display:none">
+
+      <!-- Username -->
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="signup-username" placeholder="e.g. alice"
+               oninput="liveValidateUsername(this)"/>
+        <span class="field-error" id="err-username"></span>
+        <ul class="rule-list">
+          <li class="rule" id="rule-ulen">At least 3 characters</li>
+          <li class="rule" id="rule-uchar">Letters, numbers, underscores only</li>
+        </ul>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="signup-email" placeholder="you@example.com"
+               oninput="liveValidateEmail(this)"/>
+        <span class="field-error" id="err-email"></span>
+        <ul class="rule-list">
+          <li class="rule" id="rule-email">Valid format (e.g. name@domain.com)</li>
+        </ul>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-wrap">
+          <input type="password" id="signup-pass" placeholder="••••••••"
+                 oninput="liveValidatePassword(this)"/>
+          <button class="toggle-pw" type="button" onclick="togglePw('signup-pass', this)">👁</button>
+        </div>
+        <span class="field-error" id="err-password"></span>
+        <ul class="rule-list">
+          <li class="rule" id="rule-plen">At least 8 characters</li>
+          <li class="rule" id="rule-upper">At least 1 uppercase letter (A–Z)</li>
+          <li class="rule" id="rule-lower">At least 1 lowercase letter (a–z)</li>
+          <li class="rule" id="rule-num">At least 1 number (0–9)</li>
+          <li class="rule" id="rule-spec">At least 1 special character (!@#$%^&*)</li>
+        </ul>
+        <div class="pw-strength-wrap">
+          <div class="pw-strength-bar">
+            <div class="pw-strength-fill" id="pw-strength-fill"></div>
+          </div>
+          <span class="pw-strength-label" id="pw-strength-label"></span>
+        </div>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <div class="input-wrap">
+          <input type="password" id="signup-confirm" placeholder="••••••••"
+                 oninput="liveValidateConfirm(this)"/>
+          <button class="toggle-pw" type="button" onclick="togglePw('signup-confirm', this)">👁</button>
+        </div>
+        <span class="field-error" id="err-confirm"></span>
+      </div>
+
+      <!-- Secret Code — hidden like password -->
+      <div class="form-group">
+        <label>Secret Invite Code</label>
+        <div class="input-wrap">
+          <input type="password" id="signup-code" placeholder="••••••••"
+                 oninput="clearFieldErr('err-code')"/>
+          <button class="toggle-pw" type="button" onclick="togglePw('signup-code', this)">👁</button>
+        </div>
+        <span class="field-error" id="err-code"></span>
+        <p class="hint">Ask your admin for the invite code to register.</p>
+      </div>
+
+      <div id="signup-error" class="error-msg"></div>
+      <button class="btn-primary" onclick="signup()">Create Account →</button>
+    </div>
+  </div>
+
+  <!-- Flash banner styles (inline so no dependency on style.css) -->
+  <style>
+    .success-banner {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: #2d6a4f;
+      color: #fff;
+      text-align: center;
+      padding: 14px 24px;
+      font-size: 15px;
+      font-weight: 500;
+      z-index: 9999;
+      transform: translateY(-100%);
+      transition: transform .35s ease;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .success-banner.show { transform: translateY(0); }
+    .success-banner.banner-info { background: #2d6a4f; }
+    .success-banner.banner-logout { background: #1a1a2e; }
+  </style>
+
+  <script src="app.js"></script>
+  <script>
+    // redirect if already logged in
+    if (localStorage.getItem('token')) window.location.href = 'dashboard.html';
+
+    // ── Tab switch ──
+    function showTab(e, tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      e.currentTarget.classList.add('active');
+      document.getElementById('login-form').style.display  = tab === 'login'  ? 'block' : 'none';
+      document.getElementById('signup-form').style.display = tab === 'signup' ? 'block' : 'none';
+    }
+
+    // ── Show / hide password ──
+    function togglePw(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const show  = input.type === 'password';
+      input.type  = show ? 'text' : 'password';
+      btn.textContent = show ? '🙈' : '👁';
+    }
+
+    // ── Helpers ──
+    function setRule(id, pass) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.className = 'rule ' + (pass ? 'rule-pass' : 'rule-fail');
+    }
+    function clearFieldErr(id) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '';
+    }
+    function markInput(inputEl, ok) {
+      inputEl.classList.toggle('input-ok',    ok);
+      inputEl.classList.toggle('input-error', !ok);
+    }
+
+    // ── Live: username ──
+    function liveValidateUsername(input) {
+      const v     = input.value;
+      const lenOk = v.length >= 3;
+      const chOk  = /^[a-zA-Z0-9_]*$/.test(v);
+      setRule('rule-ulen',  lenOk);
+      setRule('rule-uchar', chOk);
+      clearFieldErr('err-username');
+      if (v.length > 0) markInput(input, lenOk && chOk);
+    }
+
+    // ── Live: email ──
+    function liveValidateEmail(input) {
+      const v  = input.value;
+      const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+      setRule('rule-email', ok);
+      clearFieldErr('err-email');
+      if (v.length > 0) markInput(input, ok);
+    }
+
+    // ── Live: password ──
+    function liveValidatePassword(input) {
+      const v = input.value;
+      const checks = {
+        'rule-plen':  v.length >= 8,
+        'rule-upper': /[A-Z]/.test(v),
+        'rule-lower': /[a-z]/.test(v),
+        'rule-num':   /[0-9]/.test(v),
+        'rule-spec':  /[!@#$%^&*()\-_=+\[\]{};':",.<>/?\\|`~]/.test(v)
+      };
+      Object.entries(checks).forEach(([id, pass]) => setRule(id, pass));
+
+      const passed = Object.values(checks).filter(Boolean).length;
+      const fill   = document.getElementById('pw-strength-fill');
+      const label  = document.getElementById('pw-strength-label');
+      const pct    = (passed / 5) * 100;
+      const colors = ['#e5e7eb','#ef4444','#f97316','#eab308','#22c55e','#16a34a'];
+      const labels = ['','Weak','Fair','Good','Strong','Very Strong'];
+      fill.style.width      = pct + '%';
+      fill.style.background = colors[passed];
+      label.textContent     = labels[passed] || '';
+      label.style.color     = colors[passed];
+
+      clearFieldErr('err-password');
+      if (v.length > 0) markInput(input, passed === 5);
+
+      // re-check confirm if already typed
+      const confirmEl = document.getElementById('signup-confirm');
+      if (confirmEl.value) liveValidateConfirm(confirmEl);
+    }
+
+    // ── Live: confirm password ──
+    function liveValidateConfirm(input) {
+      const pw  = document.getElementById('signup-pass').value;
+      const ok  = input.value === pw && input.value.length > 0;
+      clearFieldErr('err-confirm');
+      if (input.value.length > 0) {
+        markInput(input, ok);
+        if (!ok) document.getElementById('err-confirm').textContent = 'Passwords do not match';
+      }
+    }
+  </script>
+  <script>
+    (function() {
+      const flash = localStorage.getItem('flash');
+      if (!flash) return;
+      localStorage.removeItem('flash');
+      const banner  = document.getElementById('flash-banner');
+      if (!banner) return;
+      const messages = {
+        signup: '✓ Account created successfully! Please log in.',
+        logout: '✓ You have been logged out. See you next time!'
+      };
+      const types = {
+        signup: 'banner-info',
+        logout: 'banner-logout'
+      };
+      if (messages[flash]) {
+        banner.textContent = messages[flash];
+        banner.classList.add('show', types[flash] || 'banner-info');
+        // auto-dismiss after 4s
+        setTimeout(() => banner.classList.remove('show'), 4000);
+        // also switch to login tab on signup success
+        if (flash === 'signup') {
+          const loginTab = document.querySelector('.tab');
+          if (loginTab) loginTab.click();
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

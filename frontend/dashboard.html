@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SplitRecord — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <div id="flash-banner" class="success-banner"></div>
+  <div id="toast" class="toast"></div>
+
+  <nav class="navbar">
+    <div class="nav-brand"><span class="brand-icon">÷</span> SplitRecord</div>
+    <div class="nav-right">
+      <span id="nav-username" class="nav-user"></span>
+      <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="panel-header">
+        <h2>My Expenses Group</h2>
+        <button class="btn-icon" onclick="openCreateGroup()" title="Create Expenses Group">+</button>
+      </div>
+      <div id="groups-list" class="groups-list">
+        <p class="empty-state">No groups yet.</p>
+      </div>
+
+      <div id="create-group-panel" class="inline-panel" style="display:none; margin-top:16px;">
+        <h3>Create Expenses Group</h3>
+        <div class="form-group">
+          <label>Expenses Name</label>
+          <input type="text" id="group-name" placeholder="e.g. Trip to Penang"
+                 onkeydown="if(event.key==='Enter') createGroup()"/>
+        </div>
+        <div id="create-group-error" class="error-msg"></div>
+        <div class="btn-row">
+          <button class="btn-ghost" onclick="closeCreateGroup()">Cancel</button>
+          <button class="btn-primary" onclick="createGroup()">Create</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main-content">
+
+      <div id="no-group-msg" class="empty-hero">
+        <div class="empty-icon">÷</div>
+        <p>Select or create a group to start recording expenses</p>
+      </div>
+
+      <div id="group-detail" style="display:none">
+
+        <!-- Header -->
+        <div class="group-header">
+          <div>
+            <h2 id="group-title">Group</h2>
+            <p id="group-members-count" class="subtitle"></p>
+          </div>
+          <div class="action-bar">
+            <button id="btn-add-member" class="btn-secondary" onclick="openAddMember()">+ Add Member</button>
+            <button id="btn-remove-member" class="btn-secondary btn-secondary-danger" onclick="openRemoveMember()">− Remove Member</button>
+            <button class="btn-primary" onclick="openAddExpense()">+ Add Expense</button>
+          </div>
+        </div>
+
+        <!-- Members list -->
+        <div id="members-list" class="members-list" style="margin-bottom:16px; display:flex; flex-wrap:wrap; gap:8px;"></div>
+
+        <!-- Add Member Panel -->
+        <div id="add-member-panel" class="inline-panel" style="display:none">
+          <h3>Add Member</h3>
+          <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="member-username" placeholder="e.g. bob"
+                   onkeydown="if(event.key==='Enter') addMember()"/>
+          </div>
+          <div id="add-member-error" class="error-msg"></div>
+          <div class="btn-row">
+            <button class="btn-ghost" onclick="closeAddMember()">Cancel</button>
+            <button class="btn-primary" onclick="addMember()">Add</button>
+          </div>
+        </div>
+
+        <!-- Remove Member Panel -->
+        <div id="remove-member-panel" class="inline-panel" style="display:none">
+          <h3>Remove Member</h3>
+          <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="remove-member-username" placeholder="e.g. bob"
+                   onkeydown="if(event.key==='Enter') removeMemberByUsername()"/>
+          </div>
+          <div id="remove-member-error" class="error-msg"></div>
+          <div class="btn-row">
+            <button class="btn-ghost" onclick="closeRemoveMember()">Cancel</button>
+            <button class="btn-danger" onclick="removeMemberByUsername()">Remove</button>
+          </div>
+        </div>
+
+        <!-- Add Expense Panel -->
+        <div id="add-expense-panel" class="inline-panel" style="display:none">
+          <h3>New Expense</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Description</label>
+              <input type="text" id="expense-desc" placeholder="e.g. Hotel booking"/>
+            </div>
+            <div class="form-group">
+              <label>Total Amount (RM)</label>
+              <input type="number" id="expense-amount" placeholder="0.00" min="0.01" step="0.01"/>
+            </div>
+          </div>
+          <p class="hint">This records the total cost. Members can then record how much each of them paid.</p>
+          <div id="add-expense-error" class="error-msg"></div>
+          <div class="btn-row">
+            <button class="btn-ghost" onclick="closeAddExpense()">Cancel</button>
+            <button class="btn-primary" onclick="addExpense()">Add Expense</button>
+          </div>
+        </div>
+
+        <!-- Pay Panel -->
+        <div id="pay-panel" class="inline-panel pay-panel-highlight" style="display:none">
+          <h3>Record My Payment</h3>
+          <p class="pay-expense-label" id="pay-expense-label"></p>
+          <p class="pay-remaining-label" id="pay-remaining-label"></p>
+          <input type="hidden" id="pay-expense-id"/>
+          <div class="form-group" style="margin-top:12px">
+            <label>Amount I paid (RM)</label>
+            <input type="number" id="pay-amount" placeholder="0.00" min="0.01" step="0.01"/>
+          </div>
+          <div id="pay-error" class="error-msg"></div>
+          <div class="btn-row">
+            <button class="btn-ghost" onclick="closePayPanel()">Cancel</button>
+            <button class="btn-primary" onclick="recordPayment()">Save Payment</button>
+          </div>
+        </div>
+
+        <!-- Summary cards -->
+        <div class="summary-cards">
+          <div class="summary-card">
+            <span class="summary-label">Total Expenses</span>
+            <span class="summary-value" id="total-amount">RM 0.00</span>
+          </div>
+          <div class="summary-card summary-card-paid">
+            <span class="summary-label">Total Paid</span>
+            <div id="total-paid-block">
+              <div class="summary-value">RM 0.00</div>
+              <div class="paid-breakdown-empty">No payments yet</div>
+            </div>
+          </div>
+          <div class="summary-card summary-card-rem">
+            <span class="summary-label">Remaining</span>
+            <span class="summary-value" id="total-remaining">RM 0.00</span>
+          </div>
+        </div>
+
+        <!-- Expense cards -->
+        <div id="expenses-list"></div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('token')) { window.location.href = 'index.html'; return; }
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      document.getElementById('nav-username').textContent = 'Hi, ' + (user.username || 'User');
+      loadGroups();
+
+      // ── Show success flash banner ──
+      const flash = localStorage.getItem('flash');
+      if (flash) {
+        localStorage.removeItem('flash');
+        const messages = {
+          login:  '✓ Welcome back, ' + (user.username || 'User') + '! You are now logged in.',
+          signup: '✓ Account created! Welcome, ' + (user.username || 'User') + '!'
+        };
+        const banner = document.getElementById('flash-banner');
+        if (banner && messages[flash]) {
+          banner.textContent = messages[flash];
+          banner.classList.add('show');
+          setTimeout(() => banner.classList.remove('show'), 4000);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
