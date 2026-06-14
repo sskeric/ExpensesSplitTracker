@@ -516,14 +516,7 @@ async function loadExpenses() {
       document.getElementById('total-amount').textContent = 'RM 0.00';
       document.getElementById('total-paid').textContent   = 'RM 0.00';
       document.getElementById('total-remaining').textContent = 'RM 0.00';
-
-    const paidEl = document.getElementById('total-paid-block');
-    if (paidEl) {
-    paidEl.innerHTML = `
-      <div class="summary-value">RM 0.00</div>
-      <div class="paid-breakdown-empty">No payments yet</div>
-      ';
-    }
+      
       return;
     }
 
