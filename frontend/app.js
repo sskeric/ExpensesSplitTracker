@@ -444,6 +444,7 @@ async function removeMemberByUsername() {
     closeRemoveMember();
     showToast(`${member.username} removed`);
     loadGroups();
+    loadMembers(); 
   } catch { showError('remove-member-error', 'Server error'); }
 }
 
