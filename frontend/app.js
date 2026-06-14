@@ -612,6 +612,11 @@ async function loadExpenses() {
 
 async function deleteExpense(expenseId) {
   if (!confirm('Delete this expense?')) return;
+
+   // Clear UI immediately
+  document.getElementById('total-paid').textContent = 'RM 0.00';
+  document.getElementById('total-remaining').textContent = 'RM 0.00';
+  
   try {
     const res  = await fetch(`${API}/expenses/${expenseId}`, { method: 'DELETE', headers: authHeader() });
     const data = await res.json();
