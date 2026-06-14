@@ -522,7 +522,7 @@ async function loadExpenses() {
     paidEl.innerHTML = `
       <div class="summary-value">RM 0.00</div>
       <div class="paid-breakdown-empty">No payments yet</div>
-      ;
+      ';
     }
       return;
     }
