@@ -512,13 +512,24 @@ async function loadExpenses() {
     const user = getUser();
 
     if (!expenses.length) {
-      list.innerHTML = '<p class="empty-state">No expenses yet. Add one!</p>';
-      document.getElementById('total-amount').textContent = 'RM 0.00';
-      document.getElementById('total-paid').textContent   = 'RM 0.00';
-      document.getElementById('total-remaining').textContent = 'RM 0.00';
-      
-      return;
-    }
+  list.innerHTML = '<p class="empty-state">No expenses yet. Add one!</p>';
+
+  document.getElementById('total-amount').textContent = 'RM 0.00';
+  document.getElementById('total-remaining').textContent = 'RM 0.00';
+
+  // ✅ IMPORTANT FIX: reset BOTH paid UI containers safely
+  const paidBlock = document.getElementById('total-paid-block');
+  if (paidBlock) {
+    paidBlock.innerHTML = `
+      <div class="summary-value">RM 0.00</div>
+      <div class="paid-breakdown-empty">No payments yet</div>
+    `;
+  }
+
+  currentExpenses = [];
+
+  return;
+}
 
     // ── Summary totals ──
     const totalAmt  = expenses.reduce((s, e) => s + e.amount, 0);
