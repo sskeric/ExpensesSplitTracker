@@ -1,3 +1,6 @@
+# Video Demostration
+https://youtu.be/RH9tVGaOlfo
+
 # 💸 SplitRecord — Expense Tracking & Split System
 
 A full-stack web application for tracking shared expenses within groups. Members can record expenses, make partial or full payments, and monitor who has paid what — all in real time.
@@ -75,6 +78,3 @@ This project demonstrates:
 - JWT authentication with bcrypt password hashing
 - Form validation — both client-side (live feedback) and server-side (duplicate checks)
 - Cloud deployment — backend on Render, frontend on Vercel, database on MongoDB Atlas
-
-# Video Demostration
-https://youtu.be/RH9tVGaOlfo
